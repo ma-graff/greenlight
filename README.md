@@ -1,39 +1,31 @@
-# Traffic Optimization with Genetic Algorithm
+# GreenLight Algorithms
 
-This project demonstrates the use of a Genetic Algorithm (GA) to optimize traffic flow using Python, [SUMO](https://www.eclipse.org/sumo/), and [DEAP](https://deap.readthedocs.io/).
+**Team:** Leeza Shewchenko, Matt Graff, Jordan Bona
 
-## Features
+## Project Goal
+Optimize traffic signal timing in Victoria using AI (genetic algorithms) to reduce wait times and emissions, and increase throughput. 
 
-- Simulates traffic scenarios in SUMO
-- Uses DEAP to evolve traffic signal timings
-- Aims to minimize overall travel time and congestion
+## Tools
+- **Traffic Simulator:** SUMO
+- **Programming Language:** Python
+- **AI Library:** DEAP
+- **Computer Vision:** Ultralytics YOLO (for future camera integration)
 
-## Requirements
+## Evaluation Metrics
+- Average wait time per vehicle
+- Total vehicles processed
+- Estimated emissions
+- Total travel time
 
-- Python 3.7+
-- [SUMO](https://www.eclipse.org/sumo/)
-- `deap`, `traci`, `numpy`
-
-Install dependencies:
-```bash
-pip install deap numpy traci
-```
-
-## Usage
-
-1. Configure your SUMO network and route files.
-2. Run the optimization script:
-    ```bash
-    python optimize_traffic.py
-    ```
-3. Results and best signal timings will be displayed after evolution.
-
-## Project Structure
-
-- `optimize_traffic.py` — Main script for running the GA
-- `sumo_config/` — SUMO network and route files
+## Data
+- City of Victoria Open Data Portal (traffic maps, flow data)
+- SUMO-generated data if needed
 
 ## References
-
-- [DEAP Documentation](https://deap.readthedocs.io/)
-- [SUMO Documentation](https://sumo.dlr.de/docs/)
+- Kuyer et al. (2008): https://doi.org/10.1007/978-3-540-87479-9_50
+- Li et al. (2016): https://doi.org/10.1109/JAS.2016.7508798
+- Mao et al. (2021): https://doi.org/10.1109/tits.2021.3066958
+- SUMO: https://eclipse.dev/sumo/
+- DEAP: https://github.com/DEAP/deap
+- Victoria Open Data: https://opendata.victoria.ca
+- Ultralytics YOLO: https://github.com/ultralytics/ultralytics
