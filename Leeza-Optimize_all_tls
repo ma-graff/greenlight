@@ -1,0 +1,108 @@
+import os
+import random
+import subprocess
+import xml.etree.ElementTree as ET
+
+# === SETTINGS ===
+NET_FILE = "final_network_with_tls.net.xml"
+CONFIG_FILE = "simulation.sumocfg"
+OUTPUT_FILE = "emissions.xml"
+TLS_OVERRIDE_FILE = "tls_override.add.xml"
+NUM_GENERATIONS = 10
+POPULATION_SIZE = 10
+
+# === LOAD TL IDs FROM NET FILE ===
+def get_all_tls_ids(net_file):
+    tree = ET.parse(net_file)
+    root = tree.getroot()
+    return [tl.get("id") for tl in root.findall("tlLogic")]
+
+# === WRITE OVERRIDE XML ===
+def write_tls_override(tls_dict, filename=TLS_OVERRIDE_FILE):
+    states = ["GrGr", "yryr", "rGrG", "ryry"]
+    with open(filename, "w") as f:
+        f.write('<additional>\n')
+        for tl_id, durations in tls_dict.items():
+            f.write(f'  <tlLogic id="{tl_id}" type="static" programID="0" offset="0">\n')
+            for d, s in zip(durations, states):
+                f.write(f'    <phase duration="{d}" state="{s}"/>\n')
+            f.write('  </tlLogic>\n')
+        f.write('</additional>\n')
+
+# === RUN SIMULATION ===
+def run_simulation():
+    try:
+        subprocess.run(["sumo", "-c", CONFIG_FILE], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        print("Error running SUMO:", e)
+
+# === READ EMISSIONS ===
+def get_total_emissions(file=OUTPUT_FILE):
+    try:
+        tree = ET.parse(file)
+        root = tree.getroot()
+        return sum(float(v.get("CO2")) for v in root.findall("vehicle"))
+    except Exception as e:
+        print("Error reading emissions:", e)
+        return float("inf")
+
+# === CREATE RANDOM INDIVIDUAL ===
+def random_tls_config(tl_ids):
+    config = {}
+    for tl in tl_ids:
+        config[tl] = [
+            random.randint(20, 60),  # green
+            random.randint(3, 6),    # yellow
+            random.randint(20, 60),  # red
+            random.randint(3, 6)     # yellow again
+        ]
+    return config
+
+# === GENETIC ALGORITHM ===
+def genetic_algorithm(tl_ids):
+    population = [random_tls_config(tl_ids) for _ in range(POPULATION_SIZE)]
+
+    for gen in range(NUM_GENERATIONS):
+        print(f"\n--- Generation {gen+1} ---")
+        scores = []
+        for i, ind in enumerate(population):
+            print(f"Running individual {i+1}/{len(population)}...")
+            write_tls_override(ind)
+            run_simulation()
+            emissions = get_total_emissions()
+            print(f"  -> Total CO2: {emissions:.2f}")
+            scores.append((emissions, ind))
+
+        # Sort and select top 50%
+        scores.sort(key=lambda x: x[0])
+        survivors = [ind for _, ind in scores[:POPULATION_SIZE // 2]]
+
+        # Crossover and mutate to refill population
+        new_population = survivors[:]
+        while len(new_population) < POPULATION_SIZE:
+            parent = random.choice(survivors).copy()
+            child = {}
+            for tl_id in parent:
+                phases = parent[tl_id][:]
+                idx = random.randint(0, 3)
+                if idx in [0, 2]:
+                    phases[idx] = random.randint(20, 60)
+                else:
+                    phases[idx] = random.randint(3, 6)
+                child[tl_id] = phases
+            new_population.append(child)
+
+        population = new_population
+
+    # Best one at the end
+    best = min(scores, key=lambda x: x[0])
+    print("\n✅ Best CO2 emission:", best[0])
+    write_tls_override(best[1])
+    return best[1]
+
+# === MAIN ===
+if __name__ == "__main__":
+    tls_ids = get_all_tls_ids(NET_FILE)
+    print(f"Found {len(tls_ids)} traffic lights.")
+    best_config = genetic_algorithm(tls_ids)
+
