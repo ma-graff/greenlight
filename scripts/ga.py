@@ -90,7 +90,7 @@ def evaluate_fitness(netxml_path, rouxml_path, working_dir, run_sumo_func, emiss
                 total_fuel += float(vehicle.get('fuel', 0))
                 total_waiting += float(vehicle.get('waiting', 0))
         # Minimize the sum of all three metrics
-        fitness = -(total_co2 + total_fuel + total_waiting)
+        fitness = -((1.0*total_co2) + (0.6*total_fuel) + (0.2*total_waiting))
         return fitness
     except Exception as e:
         print(f"Error evaluating fitness: {e}")
