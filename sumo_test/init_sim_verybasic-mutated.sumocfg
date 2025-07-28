@@ -1,0 +1,15 @@
+<configuration>
+    <input>
+        <net-file value="mckenzie-verybasic-mutated.net.xml"/>
+        <route-files value="random_trips_mckenzie_verybasic.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="350"/>
+    </time>
+    <output>
+    <fcd-output value="vbasic-fcd.xml"/>
+    <summary value="vbasic-summary.xml"/>
+    <emission-output value="vbasic-emissions-mu.xml"/>
+</output>
+</configuration>

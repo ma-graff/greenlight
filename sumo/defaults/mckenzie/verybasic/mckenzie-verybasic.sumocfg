@@ -1,0 +1,15 @@
+<configuration>
+    <input>
+        <net-file value="mckenzie-verybasic.net.xml"/>
+        <route-files value="mckenzie-verybasic.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="350"/>
+    </time>
+    <output>
+    <fcd-output value="vbasic-fcd.xml"/>
+    <summary value="vbasic-summary.xml"/>
+    <emission-output value="vbasic-emissions.xml"/>
+</output>
+</configuration>
